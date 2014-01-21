@@ -22,8 +22,8 @@ using SharedNamespace;
 // [System.Web.Script.Services.ScriptService]
 public class Service : System.Web.Services.WebService
 {
-    private String strConn = "Data Source=192.168.1.211;user id=sa;password=1111;initial catalog=fxqw;min pool size=5;persist security info=true";
-    private String strMapUrl = "http://192.168.1.211/ArcGIS/services/FXGAXM/MapServer";
+    private String strConn = "Data Source=10.18.168.39;user id=sa;password=1111;initial catalog=fxqw;min pool size=5;persist security info=true";
+    private String strMapUrl = "http://10.18.168.38/ArcGISNEW/services/FXGAXM/MapServer";
     private String strSDEPredix = "[sde].[sde].";
 
     //小区名单，默认小区后缀为 小区/街坊/公寓/村/苑/宅/里，黑名单里面名称为小区，白名单里面名称为单位
@@ -181,7 +181,21 @@ public class Service : System.Web.Services.WebService
         String beginTime = (DateTime.Now.AddDays(-1)).ToString("yyyy-MM-dd HH:mm:ss");
 
         ClsGetData clsGetData = new ClsGetData("System.Data.SqlClient", strConn);
-        String sql = "SELECT * FROM T_QW_DM WHERE BDMJYID = '" + policeID + "' AND STID = '" + stid + "' " +
+        String sql = "SELECT " +
+                        "ID , " +
+                        "DMDate , " +
+                        "IsResponse , " +
+                        "ResponseDate , " +
+                        "BDMNAME , " +
+                        "BDMDepName , " +
+                        "BDMJYID , " +
+                        "BDMDEPID , " +
+                        "DMNAME , " +
+                        "DMJYID , " +
+                        "DMDEPNAME , " +
+                        "MEMO , " +
+                        "ISCONFIRM " +
+                        "FROM T_QW_DM WHERE BDMJYID = '" + policeID + "' AND STID = '" + stid + "' " +
                         "AND CONVERT(VARCHAR,DMDate,120) > '" + beginTime + "' " +
                         "ORDER BY DMDate DESC";
         return clsGetData.GetTable(sql);
@@ -232,7 +246,6 @@ public class Service : System.Web.Services.WebService
                     "''       ENDTIME, " +
                     "''      DUTYNOTE, " +
                     "''            SEX, " +
-                    "''            RYBH, " +
                     "''     STATECHANGETIME ";
 
         sql += "UNION SELECT " +
@@ -264,7 +277,6 @@ public class Service : System.Web.Services.WebService
                      "ENDTIME       ENDTIME, " +
                      "DUTYNOTE      DUTYNOTE, " +
                      "XB            SEX, " +
-                     "RYBH          RYBH, " +
                      "STATECHANGETIME     STATECHANGETIME ";
         if (GPSID != "")
             sql += "FROM VIEW_GPSPLAN WHERE GPSSIMCARD is not null and GPSSIMCARD!='' AND GPSID > " + GPSID;
@@ -1792,7 +1804,7 @@ double dist(PointN p1, PointN p2) // 返回两点之间欧氏距离
                      "'5'           GPSTYPE," +
                      "STID          GPSSIMCARD, " +
                      "HH            CALLNO, " +
-                     "NAME + '(' + HH + ')'          GPSNAME, " +
+                     "NAME + '(' + HH + ')'         GPSNAME, " +
                      "DEPID         GPSDEPID " +
             "FROM T_QW_BASESTIDMG WHERE Isuse = 1";
 
@@ -1826,7 +1838,7 @@ double dist(PointN p1, PointN p2) // 返回两点之间欧氏距离
                      "X             X, " +
                      "Y             Y, " +
                      "TYPE          TYPE " +
-            "FROM T_QW_VIDEOPOINT";
+            "FROM T_QW_VIDEOPOINT ";
 
         return clsGetData.GetTable(sql);
     }
@@ -1843,23 +1855,6 @@ double dist(PointN p1, PointN p2) // 返回两点之间欧氏距离
                         "FROM T_QW_DM " +
                         "WHERE CONVERT(VARCHAR,DMDate,112) = '" + beginTime + "' " +
                         "ORDER BY DMDate DESC";
-        return clsGetData.GetTable(sql);
-    }
-
-    [WebMethod]
-    public DataTable setCallInfoPT(String isresponse, String isconfirm, String frequency, String stid, String jyname, String depname, String jyid, String depid, String username, String userid, String userdepname, String userdepid, String note, String kind, String position, String trueName, String trueKind, String truePosition)
-    {
-        ClsGetData clsGetData = new ClsGetData("System.Data.SqlClient", strConn);
-
-        String sql = "insert into T_QW_DM ([DMDate],[STID],[IsResponse],[ISCONFIRM],[frequency],[BDMNAME],[BDMDepName],[BDMJYID],[BDMDEPID] " +
-                        ",[DMNAME],[DMJYID],[DMDEPNAME],[DMDEPID],[MEMO],[RYBH],[LOCATION],[TRUENAME],[TRUERYBH],[TRUELOCATION]) " +
-                        "values ('" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + stid + "','" + isresponse + "'," + isconfirm + "," + frequency + ",'" + jyname + "','" + depname + "'," + jyid + ",'" + depid + "','" + username + "','" + userid + "','" + userdepname + "','" + userdepid + "','" + note + "','" + kind + "','" + position + "','" + trueName + "','" + trueKind + "','" + truePosition + "')";
-
-        clsGetData.SetTable(sql);
-
-        sql = "SELECT TOP 1 * FROM T_QW_DM WHERE BDMJYID = '" + jyid + "' AND STID = '" + stid + "' " +
-                       "ORDER BY DMDate DESC";
-
         return clsGetData.GetTable(sql);
     }
 }

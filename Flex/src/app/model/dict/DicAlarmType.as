@@ -57,6 +57,7 @@ package app.model.dict
 		{
 			var arr:Array = new Array;
 			
+			arr.push(ALL);
 			for each (var item:DicAlarmType in dict)
 			{
 				if(item.level == 0)
